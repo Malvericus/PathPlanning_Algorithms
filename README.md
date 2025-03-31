@@ -148,5 +148,3 @@ A scatter plot showing how PSO particles are distributed in the search space, av
 - **RRT is useful for initial solutions but lacks path quality**, making it ideal for dynamic environments.
 - **A*** is the fastest but suffers from sharp turns, making it useful for game AI and simple robotic systems.
 
-Let us know if you need further refinements or additional comparisons!
-
