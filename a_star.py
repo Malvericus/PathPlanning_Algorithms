@@ -66,8 +66,35 @@ class AStar3D:
             current = came_from[current]
             path.append(np.array(current) * self.res)
         return np.array(path[::-1])
+    
+def compute_path_length(path):
+    """Calculate the total Euclidean distance of a given path."""
+    if len(path) < 2:
+        return 0.0
+    return np.sum(np.linalg.norm(path[i] - path[i - 1]) for i in range(1, len(path)))
 
-def astar_callback(env, data):
+def path_smoothness(path):
+    """Calculate the smoothness of the path based on angle changes."""
+    if len(path) < 3:
+        return 0.0  # Not enough points to determine smoothness
+
+    angles = []
+    for i in range(1, len(path) - 1):
+        v1 = path[i] - path[i - 1]
+        v2 = path[i + 1] - path[i]
+        norm_v1 = np.linalg.norm(v1)
+        norm_v2 = np.linalg.norm(v2)
+        
+        if norm_v1 == 0 or norm_v2 == 0:
+            continue
+        
+        cosine_angle = np.dot(v1, v2) / (norm_v1 * norm_v2)
+        angle = np.arccos(np.clip(cosine_angle, -1.0, 1.0))
+        angles.append(angle)
+    
+    return np.mean(angles) if angles else 0.0
+
+def astar_callback(env, data, evaluation_metrics):
     fig = plt.figure(figsize=(12, 9))
     ax = fig.add_subplot(111, projection='3d')
     ax.set_box_aspect([1, 1, 1])
@@ -75,6 +102,7 @@ def astar_callback(env, data):
     # Environment
     ax.scatter(*env.start, color='red', s=150)
     ax.scatter(*env.goal, color='green', s=150)
+    
     for obs in env.obstacles:
         u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
         x = obs.center[0] + obs.radius * np.cos(u) * np.sin(v)
@@ -84,8 +112,7 @@ def astar_callback(env, data):
     
     # Visited nodes
     visited = np.array(list(data['visited'])) * 5
-    ax.scatter(visited[:,0], visited[:,1], visited[:,2], 
-               color='blue', s=10, alpha=0.3)
+    ax.scatter(visited[:,0], visited[:,1], visited[:,2], color='blue', s=10, alpha=0.3)
     
     # Current best path
     current = np.array(data['current']) * 5
@@ -94,3 +121,22 @@ def astar_callback(env, data):
     ax.set_title(f"A* Iteration: {data['iteration']}")
     plt.savefig(f'astar_frames/frame_{data["iteration"]:04d}.png')
     plt.close()
+
+    # Ensure global variable exists
+    if 'A*' not in evaluation_metrics:
+        evaluation_metrics['A*'] = []
+
+    # Only compute metrics if path exists
+    if 'path' in data and data['path'] is not None:
+        path = np.array(data['path'])
+        
+        path_length = compute_path_length(path)
+        smoothness = path_smoothness(path)
+
+        evaluation_metrics['A*'].append({
+            'iteration': len(evaluation_metrics['A*']) + 1,
+            'path_length': path_length,
+            'smoothness': smoothness
+        })
+
+        print(f"A* Iteration {len(evaluation_metrics['A*'])}: Path Length = {path_length:.2f}, Smoothness = {smoothness:.2f}")

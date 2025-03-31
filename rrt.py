@@ -82,30 +82,38 @@ class RRT:
             path.append(nodes[current])
             current = parents[current]
         return np.array(path[::-1])
+    
+def compute_path_length(path):
+    return np.sum(np.linalg.norm(np.diff(path, axis=0), axis=1))
 
-def rrt_callback(env, data):
+def path_smoothness(path):
+    if len(path) < 3:
+        return 0  # No turns = perfectly smooth
+    angles = []
+    for i in range(1, len(path) - 1):
+        v1 = path[i] - path[i - 1]
+        v2 = path[i + 1] - path[i]
+        angle = np.arccos(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
+        angles.append(angle)
+    return np.mean(angles)
+
+def rrt_callback(env, data, evaluation_metrics):
     fig = plt.figure(figsize=(12, 9), dpi=100)
     ax = fig.add_subplot(111, projection='3d')
     ax.set_box_aspect([1, 1, 1])
-    
+
     # Plot start and goal
     ax.scatter(*env.start, color='red', s=200, label='Start')
     ax.scatter(*env.goal, color='green', s=200, label='Goal')
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, 100)
-    ax.set_zlim(0, 100)
 
-    
-    # Plot all obstacles with proper scaling
+    # Plot obstacles
     for obs in env.obstacles:
-        u, v = np.mgrid[0:2*np.pi:50j, 0:np.pi:50j]  # Higher resolution mesh
+        u, v = np.mgrid[0:2*np.pi:50j, 0:np.pi:50j]
         x = obs.center[0] + obs.radius * np.cos(u) * np.sin(v)
         y = obs.center[1] + obs.radius * np.sin(u) * np.sin(v)
         z = obs.center[2] + obs.radius * np.cos(v)
-        
-        # Solid black surface with 50% opacity
         ax.plot_surface(x, y, z, color='black', alpha=0.5, edgecolor='k', linewidth=0.3)
-    
+
     # Plot RRT tree
     nodes = data['nodes']
     parents = data['parents']
@@ -114,24 +122,35 @@ def rrt_callback(env, data):
                 [nodes[i][1], nodes[parents[i]][1]],
                 [nodes[i][2], nodes[parents[i]][2]],
                 'b-', linewidth=1, alpha=0.5)
-    
+
     # Highlight new point
     if 'new_point' in data:
         ax.scatter(*data['new_point'], color='orange', s=50)
-    
-    # Plot final path if found
-    if data.get('path_found', False) and 'path' in data:
-        path = data['path']
-        ax.plot(path[:,0], path[:,1], path[:,2], 
-               'r-', linewidth=3, label='Optimal Path')
-        ax.scatter(path[:,0], path[:,1], path[:,2],
-                  color='red', s=30)
-    
-    ax.set_xlim(0, env.width)
-    ax.set_ylim(0, env.height)
-    ax.set_zlim(0, env.depth)
+
+    # Check if path exists
+    path = None  # Initialize path variable
+    if 'path' in data and data.get('path_found', False):
+        path = np.array(data['path'])
+        ax.plot(path[:, 0], path[:, 1], path[:, 2], 'r-', linewidth=3, label='Optimal Path')
+        ax.scatter(path[:, 0], path[:, 1], path[:, 2], color='red', s=30)
+
     ax.set_title(f"RRT Iteration: {data['iteration']}")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f'rrt_frames/frame_{data["iteration"]:04d}.png', dpi=120)
     plt.close()
+
+    # Only compute metrics if path exists
+    if path is not None:
+        path_length = compute_path_length(path)
+        smoothness = path_smoothness(path)
+
+        evaluation_metrics['RRT'].append({
+            'iteration': len(evaluation_metrics['RRT']) + 1,
+            'path_length': path_length,
+            'smoothness': smoothness
+        })
+
+        print(f"RRT Iteration {len(evaluation_metrics['RRT'])}: Path Length = {path_length:.2f}, Smoothness = {smoothness:.2f}")
+    else:
+        print(f"RRT Iteration {data['iteration']}: No path found yet.")
