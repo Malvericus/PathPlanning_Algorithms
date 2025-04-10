@@ -14,6 +14,8 @@ Path length is the total distance traveled from the start to the goal along the 
 - Shorter paths typically indicate more efficient navigation.
 - Longer paths may suggest inefficiencies or unnecessary detours.
 
+![Path Length](./analysis_results/path_length_comparison.png)
+
 ### Results Interpretation
 - **PSO** (141.79) → Moderate-length path, benefiting from swarm optimization.
 - **RRT** (190.00) → Longer path due to random exploration and suboptimal connections.
@@ -34,6 +36,8 @@ Smoothness is the degree to which the path avoids sudden direction changes, meas
 ### Importance
 - Smoother paths are **safer and more feasible** for real-world movement.
 - Sharp turns increase mechanical stress and **slow down movement**.
+
+![Smoothness](./analysis_results/smoothness_comparison.png)
 
 ### Results Interpretation
 - **PSO** (0.59) → Smoothest path due to global trajectory optimization.
@@ -56,6 +60,8 @@ Execution time is the total computational time required to generate a valid path
 - Faster algorithms allow real-time decision-making.
 - Slow algorithms may be impractical for **dynamic environments**.
 
+![Execution Time](./analysis_results/time_(s)_comparison.png)
+
 ### Results Interpretation
 - **PSO** (153.78s) → Longest computation time due to iterative optimization.
 - **RRT** (80.93s) → Moderate time, as it builds a tree incrementally.
@@ -68,28 +74,7 @@ Execution time is the total computational time required to generate a valid path
 
 ---
 
-## 4. Convergence Analysis
-
-### Definition
-Convergence refers to how quickly an algorithm finds a near-optimal path, often analyzed using cost vs. iterations plots.
-
-### Importance
-- Faster convergence enables **real-time adaptability**.
-- Slow convergence can lead to high computational costs.
-
-### Results Interpretation
-- **PSO** converges slowly but finds a high-quality path.
-- **RRT** does not guarantee convergence and can be suboptimal.
-- **A*** converges quickly but may struggle in high-dimensional spaces.
-
-### Significance in Real Applications
-- **AI-driven navigation systems** need fast convergence.
-- **Industrial robots** require precision in movement.
-- **Disaster response robots** must adapt to unknown terrain quickly.
-
----
-
-## 5. Path Quality Visualization
+## 4. Path Quality Visualization
 
 ### Definition
 A 3D plot of the computed paths allows visual inspection of efficiency, smoothness, and obstacle avoidance.
@@ -97,6 +82,8 @@ A 3D plot of the computed paths allows visual inspection of efficiency, smoothne
 ### Importance
 - Provides **intuitive understanding** of algorithm performance.
 - Helps detect **collisions, detours, or inefficiencies**.
+
+![Path Quality](./analysis_results/path_quality.png)
 
 ### Results Interpretation
 - **PSO Path:** Well-optimized and smooth, avoiding obstacles.
@@ -110,7 +97,7 @@ A 3D plot of the computed paths allows visual inspection of efficiency, smoothne
 
 ---
 
-## 6. Particle Distribution Analysis (PSO-specific)
+## 5. Particle Distribution Analysis (PSO-specific)
 
 ### Definition
 A scatter plot showing how PSO particles are distributed in the search space, avoiding obstacles and converging towards the goal.
@@ -118,6 +105,8 @@ A scatter plot showing how PSO particles are distributed in the search space, av
 ### Importance
 - Demonstrates how PSO **explores the environment**.
 - Shows if particles **converge effectively**.
+
+![PSO](./analysis_results/pso_particles.png)
 
 ### Results Interpretation
 - Particles **distribute widely at first**, then converge near the optimal path.
