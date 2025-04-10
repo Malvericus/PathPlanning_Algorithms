@@ -134,17 +134,11 @@ A scatter plot showing how PSO particles are distributed in the search space, av
 
 | **Metric**      | **PSO** | **RRT** | **A*** | **Best For** |
 |---------------|---------|--------|------|------------|
-| **Path Length** | ✅ Short  | ❌ Long  | ❌ Very Long  | Efficient routing |
-| **Smoothness** | ✅ High  | ❌ Medium  | ❌ Low | Robotics & drones |
-| **Execution Time** | ❌ Slow  | ⚠️ Medium  | ✅ Fast | Real-time systems |
-| **Convergence** | ✅ Optimized | ❌ No guarantee | ✅ Systematic | AI-based planning |
-| **Path Quality** | ✅ High | ⚠️ Erratic | ❌ Sharp turns | Visual validation |
-| **Particle Analysis** | ✅ Adaptive | ❌ Not applicable | ❌ Not applicable | Swarm-based systems |
+| **Path Length** | Short  | Long  | Very Long  | Efficient routing |
+| **Smoothness** | High  | Medium  | Low | Robotics & drones |
+| **Execution Time** | Slow  | Medium  | Fast | Real-time systems |
+| **Convergence** | Optimized | No guarantee | Systematic | AI-based planning |
+| **Path Quality** | High | Erratic | Sharp turns | Visual validation |
+| **Particle Analysis** | Adaptive | Not applicable | Not applicable | Swarm-based systems | 
 
-✅ = Best, ⚠️ = Acceptable, ❌ = Poor  
-
-### Summary
-- **PSO excels in smoothness and optimized paths**, making it suitable for drone navigation, autonomous delivery, and robotic arms.
-- **RRT is useful for initial solutions but lacks path quality**, making it ideal for dynamic environments.
-- **A*** is the fastest but suffers from sharp turns, making it useful for game AI and simple robotic systems.
 
